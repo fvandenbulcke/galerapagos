@@ -1,8 +1,8 @@
 import { UUID } from 'crypto';
 import { PlayerRepository } from '../player/player.repository';
-import { GameRepository } from './game.repository';
+import { GameRepository } from './repository/game.repository';
 import Player from '../player/player';
-import { Game } from './game';
+import Game from './game';
 
 export class GameManager {
   private gameRepository: GameRepository;
@@ -20,17 +20,30 @@ export class GameManager {
     return this.gameRepository.getAll();
   }
 
+  getById(gameId: UUID): Game {
+    return this.gameRepository.getById(gameId);
+  }
+
+  #playerJoinAGame(player: Player, game: Game): Game {
+    game.add(player);
+    return game;
+  }
+
   create(playerId: UUID): Game {
     const player: Player = this.playerRepository.get(playerId);
     const game: Game = this.gameRepository.create();
-    player.join(game);
-    return game;
+    return this.#playerJoinAGame(player, game);
   }
 
   join(playerId: UUID, gameId: UUID): Game {
     const player: Player = this.playerRepository.get(playerId);
-    const game: Game = this.gameRepository.getById(gameId);
-    player.join(game);
+    const game: Game = this.getById(gameId);
+    return this.#playerJoinAGame(player, game);
+  }
+
+  start(gameId: UUID): Game {
+    const game: Game = this.getById(gameId);
+    game.start();
     return game;
   }
 }

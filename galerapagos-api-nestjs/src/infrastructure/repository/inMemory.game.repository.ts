@@ -1,6 +1,6 @@
 import { UUID } from 'crypto';
-import { Game } from 'src/domain/game/game';
-import { GameRepository } from 'src/domain/game/game.repository';
+import Game from 'src/domain/game/game';
+import { GameRepository } from '@/domain/game/repository/game.repository';
 
 const games = [] as Game[];
 

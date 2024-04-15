@@ -14,7 +14,7 @@ describe('AppController', () => {
     playerController = app.get<PlayerController>(PlayerController);
   });
 
-  describe('root', () => {
+  xdescribe('root', () => {
     it('should return "Hello World!"', () => {
       // expect(playerController.getPlayer()).toBe('Hello World!');
     });

@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { PlayerRepository } from 'src/domain/player/player.repository';
-import { buildRegisterResponse, toPlayerDto } from './response/responseBuilder';
+import { buildRegisterResponse, toPlayerDto } from './response/response.builder';
 import { PlayerDto } from './response/types';
 
 @Controller('/player')

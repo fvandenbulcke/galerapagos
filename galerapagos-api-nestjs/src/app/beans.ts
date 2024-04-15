@@ -1,5 +1,5 @@
 import { GameManager } from 'src/domain/game/game.manager';
-import { GameRepository } from 'src/domain/game/game.repository';
+import { GameRepository } from '@/domain/game/repository/game.repository';
 import { PlayerRepository } from 'src/domain/player/player.repository';
 import { InMemoryGameRepository } from 'src/infrastructure/repository/inMemory.game.repository';
 import { InMemoryPlayerRepository } from 'src/infrastructure/repository/inMemory.player.repository';

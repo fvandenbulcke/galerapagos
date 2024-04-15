@@ -1,7 +1,7 @@
 import halson from 'halson';
 import Player from 'src/domain/player/player';
 import { PlayerDto } from './types';
-import { Game } from 'src/domain/game/game';
+import Game from 'src/domain/game/game';
 
 export const toPlayerDto = (player: Player): PlayerDto => ({
   id: player.id,
@@ -24,9 +24,15 @@ export const buildGameListResponse = (player: Player, games: Game[]): any => {
 export const buildGameResponse =
   (player: Player) =>
   (game: Game): any => {
-    const response = halson(game).addLink('self', `/game/${game.id}`);
-    if (player.currentGame !== game.id) {
+    const response = halson(game.getState()).addLink(
+      'self',
+      `/game/${game.id}/${player.id}`,
+    );
+    debugger;
+    if (!game.isPlayer(player)) {
       response.addLink('joinGame', `/game/${game.id}/${player.id}`);
+    } else if (game.canBeStarted()) {
+      response.addLink('startGame', `/game/${game.id}/start/${player.id}`);
     }
     return response;
   };
