@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PassportSerializer } from '@nestjs/passport';
 import { User, UsersService } from '../users/users.service';
+import { UUID } from 'crypto';
+import Player from '@/domain/player/player';
 
 @Injectable()
 export class UserSerializer extends PassportSerializer {
@@ -8,22 +10,20 @@ export class UserSerializer extends PassportSerializer {
     super();
   }
 
-  serializeUser(user: User, done: (param: string, user: string) => any) {
-    console.log('serializeUser');
-    done(null, user.username);
+  serializeUser(user: Player, done: (param: string, user: string) => any) {
+    done(null, user.id);
   }
 
-  deserializeUser(username: string, done: (param: string, user: User) => any) {
-    console.log('deserializeUser');
-    const user = this.usersService.findByUsername(username);
+  deserializeUser(userId: UUID, done: (param: string, user: Player) => any) {
+    const player = this.usersService.findById(userId);
 
-    if (!user) {
+    if (!player) {
       return done(
-        `Could not deserialize user: user with ${username} could not be found`,
+        `Could not deserialize user: user with ${userId} could not be found`,
         null,
       );
     }
 
-    done(null, user);
+    done(null, player);
   }
 }

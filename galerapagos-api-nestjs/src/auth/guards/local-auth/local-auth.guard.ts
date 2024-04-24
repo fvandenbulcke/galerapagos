@@ -3,25 +3,17 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 
 @Injectable()
-export class LocalAuthGuard extends AuthGuard('local') {
+export class LocalAuthGuard extends AuthGuard('custom') {
   constructor() {
     super();
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log('canActivate');
-    try {
-      await super.canActivate(context);
-      console.log('canActivate');
-      const request = context.switchToHttp().getRequest() as Request;
+    await super.canActivate(context);
+    const request = context.switchToHttp().getRequest() as Request;
 
-      console.log('canActivate');
-      await super.logIn(request);
+    await super.logIn(request);
 
-      console.log('return canActivate');
-      return true;
-    } catch (error) {
-      console.error(error);
-    }
+    return true;
   }
 }

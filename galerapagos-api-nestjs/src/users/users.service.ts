@@ -1,4 +1,6 @@
+import Player from '@/domain/player/player';
 import { Injectable } from '@nestjs/common';
+import { UUID, randomUUID } from 'crypto';
 
 export interface User {
   username: string;
@@ -7,18 +9,15 @@ export interface User {
 
 @Injectable()
 export class UsersService {
-  private readonly mockedUsers: User[] = [
-    {
-      username: 'Alice',
-      password: 'pass',
-    },
-    {
-      username: 'Bob',
-      password: 'pass',
-    },
-  ];
+  private readonly mockedPlayers: Player[] = [];
 
-  findByUsername(username: string): User | null {
-    return this.mockedUsers.find((user) => user.username === username) ?? null;
+  register(username: string): Player {
+    const player = new Player(randomUUID(), username);
+    this.mockedPlayers.push(player);
+    return player;
+  }
+
+  findById(userId: UUID): Player | null {
+    return this.mockedPlayers.find((player) => player.id === userId) ?? null;
   }
 }

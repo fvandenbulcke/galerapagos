@@ -16,15 +16,17 @@ import { Request } from 'express';
 export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Req() request: any) {
-    console.log('request');
+  login(@Req() request: Request) {
     return request.user; /* the user we are returning in our local strategy's validate method */
   }
 
   @UseGuards(IsAuthenticatedGuard)
   @Get('/session')
-  someMethod(@Session() session: ExpressSession) {
-    return session;
+  someMethod(@Session() session: ExpressSession, @Req() request: Request) {
+    return {
+      ...session,
+      user: request.user,
+    };
   }
 
   @UseGuards(IsAuthenticatedGuard)
