@@ -1,8 +1,7 @@
 import { Ressource, TurnAction } from '@/domain/configuration';
-import Game, { GameStateInfo } from '../game';
-import { PlayerTurn } from '../player.turn/player.turn';
 import Player from '@/domain/player/player';
-import { UUID } from 'crypto';
+import Game, { GameStateInfo } from '@/domain/game/game';
+import PlayerTurn from '@/domain/game/player.turn/player.turn';
 
 export abstract class GameState {
   protected _game: Game;
@@ -34,16 +33,22 @@ export abstract class GameState {
     return false;
   }
 
+  isStarted(): boolean {
+    return true;
+  }
+
   start(): void {
     throw new Error('Method not implemented.');
   }
 
   abstract onActionSelect(player: Player, action: TurnAction): void;
   abstract onRessourceGain(player: Player, quantity: number): void;
-  abstract get currentPlayer(): UUID;
 
   getState(): GameStateInfo {
     return {
+      id: this._game.id,
+      canBeStarted: this.canBeStarted(),
+      isStarted: this.isStarted(),
       players: this._game.players,
       ressources: this.ressources,
     };

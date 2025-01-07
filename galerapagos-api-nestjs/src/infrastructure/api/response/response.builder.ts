@@ -2,37 +2,47 @@ import halson from 'halson';
 import Player from 'src/domain/player/player';
 import { PlayerDto } from './types';
 import Game from 'src/domain/game/game';
+import paths from '../routing/paths';
+import GameStateDto from './dto/game.state';
 
 export const toPlayerDto = (player: Player): PlayerDto => ({
   id: player.id,
   name: player.name,
 });
 
+export const buildConnectResponse = (player: Player): any => {
+  if (player) {
+    return buildRegisterResponse(player);
+  } else {
+    return halson(player).addLink('login', `${paths.app}/login`);
+  }
+};
+
 export const buildRegisterResponse = (player: PlayerDto): any => {
   return halson(player)
-    .addLink('self', `/player/${player.id}`)
-    .addLink('listGames', `/game/${player.id}`)
-    .addLink('createGame', `/game/${player.id}`);
+    .addLink('self', `${paths.app}/players/self`)
+    .addLink('listGames', `${paths.app}/games`)
+    .addLink('createGame', `${paths.app}/games`);
 };
 
 export const buildGameListResponse = (player: Player, games: Game[]): any => {
-  return halson(games.map(buildGameResponse(player)))
-    .addLink('self', `/game`)
-    .addLink('createGame', `/game/${player.id}`);
+  return halson({ content: games.map(buildGameResponse(player)) })
+    .addLink('self', `${paths.app}/games`)
+    .addLink('createGame', `${paths.app}/games`);
 };
 
 export const buildGameResponse =
   (player: Player) =>
   (game: Game): any => {
-    const response = halson(game.getState()).addLink(
+    const gameState = game.getState();
+    const response = halson(GameStateDto.from(gameState)).addLink(
       'self',
-      `/game/${game.id}/${player.id}`,
+      `${paths.app}/games/${game.id}`,
     );
-    debugger;
     if (!game.isPlayer(player)) {
-      response.addLink('joinGame', `/game/${game.id}/${player.id}`);
-    } else if (game.canBeStarted()) {
-      response.addLink('startGame', `/game/${game.id}/start/${player.id}`);
+      response.addLink('joinGame', `${paths.app}/games/${game.id}`);
+    } else if (gameState.canBeStarted) {
+      response.addLink('startGame', `${paths.app}/games/${game.id}/start`);
     }
     return response;
   };

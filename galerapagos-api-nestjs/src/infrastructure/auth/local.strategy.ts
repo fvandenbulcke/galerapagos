@@ -1,20 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-custom';
-import { AuthService } from './auth.service';
-import Player from '@/domain/player/player';
 import { Request } from 'express';
+import { Strategy } from 'passport-custom';
+import { PlayerRepository } from '@/domain/repositories';
+import Player from '@/domain/player/player';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    @Inject('PlayerRepository')
+    private readonly playerRepository: PlayerRepository,
+  ) {
     super();
   }
 
   validate(request: Request): Player {
     return (
       (request.user as Player) ||
-      this.authService.registerPlayer(request.body.userName)
+      this.playerRepository.register(request.body.userName)
     );
   }
 }

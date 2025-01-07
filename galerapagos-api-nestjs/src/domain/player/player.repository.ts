@@ -1,6 +1,6 @@
 import Player from './player';
 
-export interface PlayerRepository {
-  register(): Player;
+export default interface PlayerRepository {
+  register(playerName: string): Player;
   get(uuid: string): Player;
 }

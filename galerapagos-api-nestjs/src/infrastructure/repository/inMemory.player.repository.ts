@@ -1,12 +1,12 @@
 import { randomUUID } from 'crypto';
-import Player from 'src/domain/player/player';
-import { PlayerRepository } from 'src/domain/player/player.repository';
+import { Player } from '@/domain/models';
+import { PlayerRepository } from '@/domain/repositories';
 
 const players = [] as Player[];
 
 export class InMemoryPlayerRepository implements PlayerRepository {
-  register(): Player {
-    const player = new Player(randomUUID(), 'florian');
+  register(playerName: string): Player {
+    const player = new Player(randomUUID(), playerName);
     players.push(player);
     return player;
   }

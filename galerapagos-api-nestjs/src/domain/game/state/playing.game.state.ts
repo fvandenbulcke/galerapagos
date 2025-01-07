@@ -1,16 +1,15 @@
 import { UUID } from 'crypto';
-import Game, { GameStateInfo } from '../game';
-import { WeatherManager } from '../weather/weather.manager';
-import { GameState } from './game.state';
 import {
   TurnAction,
   startingRessourcesByPlayersNumber,
 } from '@/domain/configuration/index';
-import { PlayerTurn } from '../player.turn/player.turn';
+import PlayerTurn from '@/domain/game/player.turn/player.turn';
 import Player from '@/domain/player/player';
 
+import Game, { GameStateInfo } from '../game';
+import { GameState } from './game.state';
+
 export class PlayingGameState extends GameState {
-  private _weatherManager: WeatherManager;
   private _orderedPlayers: UUID[];
   private _currentPlayer: UUID;
   private _playerTurns = new Map<UUID, PlayerTurn>();
@@ -19,14 +18,9 @@ export class PlayingGameState extends GameState {
     super(game);
     const { players } = this._game;
     this._ressources = { ...startingRessourcesByPlayersNumber[players.length] };
-    this._weatherManager = new WeatherManager();
 
     this._orderedPlayers = players.map(({ id }) => id);
     this.#setNextPlayer();
-  }
-
-  get currentPlayer(): UUID {
-    return this._currentPlayer;
   }
 
   getState(): GameStateInfo {
@@ -38,8 +32,9 @@ export class PlayingGameState extends GameState {
   }
 
   #setNextPlayer(): void {
-    this._currentPlayer = this._orderedPlayers[0];
-    this._orderedPlayers = this._orderedPlayers.slice(1);
+    const [firstPlayer, ...others] = this._orderedPlayers;
+    this._currentPlayer = firstPlayer;
+    this._orderedPlayers = others;
   }
 
   #getPlayerTurn(player: Player): PlayerTurn {
@@ -48,7 +43,7 @@ export class PlayingGameState extends GameState {
 
   onActionSelect(player: Player, action: TurnAction) {
     if (player.id !== this._currentPlayer)
-      throw new Error('Player is not the expected player');
+      throw new Error('Player is not the expected one');
 
     const playerTurn = this.#getPlayerTurn(player);
     if (playerTurn) throw new Error('Player has already selected its action');
@@ -58,7 +53,7 @@ export class PlayingGameState extends GameState {
 
   onRessourceGain(player: Player, quantity: number) {
     if (player.id !== this._currentPlayer)
-      throw new Error('Player is not the expected player');
+      throw new Error('Player is not the expected one');
 
     const playerTurn = this.#getPlayerTurn(player);
     if (!playerTurn) throw new Error('Player has not yet selected its action');
@@ -67,5 +62,6 @@ export class PlayingGameState extends GameState {
 
     playerTurn.onRessourceGain(quantity);
     this.updateRessources(playerTurn);
+    this.#setNextPlayer();
   }
 }

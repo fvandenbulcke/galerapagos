@@ -1,12 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { UsersModule } from '../users/users.module';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { LocalStrategy } from './local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import expressSession from 'express-session';
 import passport from 'passport';
-import { UserSerializer } from './user.serializer';
+import { LocalStrategy } from '@/infrastructure/auth/local.strategy';
+import { PlayerSerializer } from '@/infrastructure/auth/player.serializer';
+import { AuthController } from '@/infrastructure/api/auth.controller';
+import { PlayerModule } from './player.module';
+import { playerRepository } from './beans';
 
 // https://aurelienbrabant.fr/blog/session-based-authentication-with-nestjs
 
@@ -15,9 +15,15 @@ import { UserSerializer } from './user.serializer';
     PassportModule.register({
       session: true,
     }),
-    UsersModule,
   ],
-  providers: [AuthService, LocalStrategy, UserSerializer],
+  providers: [
+    LocalStrategy,
+    PlayerSerializer,
+    {
+      provide: 'PlayerRepository',
+      useValue: playerRepository,
+    },
+  ],
   controllers: [AuthController],
 })
 export class AuthModule implements NestModule {

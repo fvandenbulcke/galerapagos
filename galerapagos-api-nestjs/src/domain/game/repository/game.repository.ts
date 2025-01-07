@@ -1,10 +1,13 @@
 import { UUID } from 'crypto';
 import Game from '../game';
+import Player from '../../player/player';
 
-export interface GameRepository {
+export default interface GameRepository {
   getAll(): Game[];
 
-  create(): Game;
+  create(player: Player): Game;
 
   getById(gameId: UUID): Game;
+
+  deleteById(gameId: UUID): void;
 }

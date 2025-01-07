@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GameController } from 'src/infrastructure/api/game.controller';
-import { GameManager } from 'src/domain/game/game.manager';
+import { GameManager } from '@/infrastructure/gameManager/game.manager';
 import { gameManager, playerRepository } from './beans';
 
 @Module({

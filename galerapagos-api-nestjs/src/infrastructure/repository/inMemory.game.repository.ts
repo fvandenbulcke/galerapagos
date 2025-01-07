@@ -1,21 +1,33 @@
-import { UUID } from 'crypto';
-import Game from 'src/domain/game/game';
-import { GameRepository } from '@/domain/game/repository/game.repository';
+import { randomUUID, UUID } from 'crypto';
+import { Game, Player } from '@/domain/models';
+import { GameRepository } from '@/domain/repositories';
 
-const games = [] as Game[];
+const game1 = Game.create(new Player(randomUUID(), 'playerName1a'));
+game1.isJoinedBy(new Player(randomUUID(), 'playerName1b'));
+const game2 = Game.create(new Player(randomUUID(), 'playerName2a'));
+game2.isJoinedBy(new Player(randomUUID(), 'playerName2b'));
+const game3 = Game.create(new Player(randomUUID(), 'playerName3a'));
+game3.isJoinedBy(new Player(randomUUID(), 'playerName3b'));
+
+let games = [game1, game2, game3, game1, game2, game3] as Game[];
 
 export class InMemoryGameRepository implements GameRepository {
   getAll(): Game[] {
     return games;
   }
 
-  create(): Game {
-    const game = Game.create();
+  create(player: Player): Game {
+    const game = Game.create(player);
     games.push(game);
-    return game;
+    return game1;
   }
 
   getById(gameId: UUID): Game {
-    return games.find(({ id }) => id === gameId);
+    // games.find(({ id }) => id === gameId);
+    return game1; // games.find(({ id }) => id === gameId);
+  }
+
+  deleteById(gameId: UUID): void {
+    games = games.filter(({ id }) => id !== gameId);
   }
 }

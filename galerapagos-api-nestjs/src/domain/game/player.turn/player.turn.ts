@@ -1,6 +1,6 @@
 import { TurnAction } from '@/domain/configuration';
 
-export class PlayerTurn {
+export default class PlayerTurn {
   private _action: TurnAction;
   private _gain: number;
 

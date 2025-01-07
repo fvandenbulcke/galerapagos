@@ -1,14 +1,26 @@
-import { Controller, Get, Inject, Param, Post, Put } from '@nestjs/common';
-import { GameManager } from 'src/domain/game/game.manager';
-import { PlayerRepository } from 'src/domain/player/player.repository';
-import Player from 'src/domain/player/player';
-import Game from 'src/domain/game/game';
+import {
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { GameManager } from '@/infrastructure/gameManager/game.manager';
+import { PlayerRepository } from '@/domain/repositories';
+import { Game, Player } from '@/domain/models';
+
 import {
   buildGameListResponse,
   buildGameResponse,
 } from './response/response.builder';
+import { UUID } from 'crypto';
+import { IsAuthenticatedGuard } from '../auth/guards/is-authenticated/is-authenticated.guard';
 
-@Controller('/game')
+@Controller('/games')
 export class GameController {
   constructor(
     @Inject('PlayerRepository')
@@ -16,35 +28,40 @@ export class GameController {
     private readonly gameManager: GameManager,
   ) {}
 
-  @Get(':uuid')
-  getAll(@Param() params: any): Game[] {
-    const player: Player = this.playerRepository.get(params.uuid);
+  @Get()
+  @UseGuards(IsAuthenticatedGuard)
+  getAll(@Req() request: Request): Game[] {
+    const player: Player = request.user as Player;
     return buildGameListResponse(player, this.gameManager.getAll());
   }
 
-  @Get('/:gameId/:uuid')
-  getById(@Param() params: any): Game {
-    const player: Player = this.playerRepository.get(params.uuid);
+  @Get('/:gameId')
+  @UseGuards(IsAuthenticatedGuard)
+  getById(@Req() request: Request, @Param() params: any): Game {
+    const player: Player = request.user as Player;
     return buildGameResponse(player)(this.gameManager.getById(params.gameId));
   }
 
-  @Post(':uuid')
-  create(@Param() params: any): Game {
-    const player: Player = this.playerRepository.get(params.uuid);
-    const game: Game = this.gameManager.create(params.uuid);
+  @Post()
+  @UseGuards(IsAuthenticatedGuard)
+  create(@Req() request: Request): Game {
+    const player: Player = request.user as Player;
+    const game: Game = this.gameManager.create(player);
     return buildGameResponse(player)(game);
   }
 
-  @Put('/:gameId/:uuid')
-  join(@Param() params: any): Game {
-    const player: Player = this.playerRepository.get(params.uuid);
-    const game: Game = this.gameManager.join(params.uuid, params.gameId);
+  @Put('/:gameId')
+  @UseGuards(IsAuthenticatedGuard)
+  join(@Req() request: Request, @Param() params: { gameId: UUID }): Game {
+    const player: Player = request.user as Player;
+    const game: Game = this.gameManager.join(player, params.gameId);
     return buildGameResponse(player)(game);
   }
 
-  @Put('/:gameId/start/:uuid')
-  start(@Param() params: any): Game {
-    const player: Player = this.playerRepository.get(params.uuid);
+  @Put('/:gameId/start')
+  @UseGuards(IsAuthenticatedGuard)
+  start(@Req() request: Request, @Param() params: { gameId: UUID }): Game {
+    const player: Player = request.user as Player;
     const game: Game = this.gameManager.start(params.gameId);
     return buildGameResponse(player)(game);
   }
