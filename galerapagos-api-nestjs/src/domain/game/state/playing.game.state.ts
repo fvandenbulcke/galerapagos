@@ -6,8 +6,8 @@ import {
 import PlayerTurn from '@/domain/game/player.turn/player.turn';
 import Player from '@/domain/player/player';
 
-import Game, { GameStateInfo } from '../game';
-import { GameState } from './game.state';
+import Game from '../game';
+import { GameState, StateInfo } from './game.state';
 
 export class PlayingGameState extends GameState {
   private _orderedPlayers: UUID[];
@@ -15,15 +15,15 @@ export class PlayingGameState extends GameState {
   private _playerTurns = new Map<UUID, PlayerTurn>();
 
   constructor(game: Game) {
-    super(game);
-    const { players } = this._game;
+    super();
+    const { players } = game;
     this._ressources = { ...startingRessourcesByPlayersNumber[players.length] };
 
     this._orderedPlayers = players.map(({ id }) => id);
     this.#setNextPlayer();
   }
 
-  getState(): GameStateInfo {
+  getState(): StateInfo {
     return {
       ...super.getState(),
       currentPlayer: this._currentPlayer,

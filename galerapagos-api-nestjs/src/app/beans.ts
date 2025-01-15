@@ -1,4 +1,4 @@
-import { GameManager } from '@/infrastructure/gameManager/game.manager';
+import { GameManager } from '@/domain/gameManager/game.manager';
 import { GameRepository, PlayerRepository } from '@/domain/repositories';
 import { InMemoryGameRepository } from 'src/infrastructure/repository/inMemory.game.repository';
 import { InMemoryPlayerRepository } from 'src/infrastructure/repository/inMemory.player.repository';

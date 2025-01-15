@@ -1,15 +1,18 @@
+import { UUID } from 'crypto';
 import { Ressource, TurnAction } from '@/domain/configuration';
 import Player from '@/domain/player/player';
-import Game, { GameStateInfo } from '@/domain/game/game';
 import PlayerTurn from '@/domain/game/player.turn/player.turn';
 
-export abstract class GameState {
-  protected _game: Game;
-  protected _ressources: Ressource;
+export type StateInfo = {
+  canBeStarted: boolean;
+  isStarted: boolean;
+  ressources?: Ressource;
+  currentPlayer?: UUID;
+  currentPlayerTurn?: PlayerTurn;
+};
 
-  constructor(game: Game) {
-    this._game = game;
-  }
+export abstract class GameState {
+  protected _ressources: Ressource;
 
   get ressources() {
     return this._ressources;
@@ -44,12 +47,10 @@ export abstract class GameState {
   abstract onActionSelect(player: Player, action: TurnAction): void;
   abstract onRessourceGain(player: Player, quantity: number): void;
 
-  getState(): GameStateInfo {
+  getState(): StateInfo {
     return {
-      id: this._game.id,
       canBeStarted: this.canBeStarted(),
       isStarted: this.isStarted(),
-      players: this._game.players,
       ressources: this.ressources,
     };
   }

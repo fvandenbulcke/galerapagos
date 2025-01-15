@@ -23,6 +23,7 @@ const gameRepositoryStub: GameRepository = {
   create: jest.fn(),
   getById: (id: UUID) => mockGetById(id),
   deleteById: (id: UUID) => mockDeleteById(id),
+  save: (game: Game) => game,
 };
 
 const gameManager = new GameManager(gameRepositoryStub);

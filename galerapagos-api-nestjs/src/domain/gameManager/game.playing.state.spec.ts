@@ -15,16 +15,20 @@ jest.mock('@/domain/configuration/index', () => ({
   ...jest.requireActual('@/domain/configuration/index'),
   startingRessourcesByPlayersNumber: {
     2: { fish: 5, water: 6, wood: 7 },
+    3: { fish: 5, water: 6, wood: 7 },
+    12: { fish: 10, water: 24, wood: 0 },
   },
 }));
 
 const mockGetById = jest.fn();
 const mockDeleteById = jest.fn();
+const mockSave = jest.fn((game: Game) => game);
 const gameRepositoryStub: GameRepository = {
   getAll: jest.fn(),
   create: jest.fn(),
   getById: (id: UUID) => mockGetById(id),
   deleteById: (id: UUID) => mockDeleteById(id),
+  save: mockSave,
 };
 
 const gameManager = new GameManager(gameRepositoryStub);
@@ -43,6 +47,7 @@ const getCurrentPlayer = (): Player => {
 
 describe('Game - when is started', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     GAME = Game.create(FIRST_PLAYER);
     GAME.isJoinedBy(SECOND_PLAYER);
     mockGetById.mockReturnValue(GAME);
@@ -80,8 +85,8 @@ describe('Game - when is started', () => {
 
   test('should delete game when leaving player is the last true one', () => {
     gameManager.leave(FIRST_PLAYER, GAME.id);
-
     const updatedGame = gameManager.leave(SECOND_PLAYER, GAME.id);
+
     expect(mockDeleteById).toHaveBeenCalledTimes(1);
     expect(mockDeleteById).toHaveBeenCalledWith(GAME.id);
     expect(updatedGame).toBeNull();
@@ -159,6 +164,33 @@ describe('Game - when is started', () => {
         currentPlayerTurn: undefined,
       };
       expect(gameState).toEqual(expected);
+    });
+  });
+
+  describe('automatic turn', () => {
+    const THIRD_PLAYER = new Player(randomUUID(), 'unit-test-3');
+    const FOURTH_PLAYER = new Player(randomUUID(), 'unit-test-4');
+    const FIFT_PLAYER = new Player(randomUUID(), 'unit-test-5');
+
+    beforeEach(() => {
+      GAME = Game.create(FIRST_PLAYER);
+      GAME.isJoinedBy(SECOND_PLAYER);
+      GAME.isJoinedBy(THIRD_PLAYER);
+      GAME.isJoinedBy(FOURTH_PLAYER);
+      GAME.isJoinedBy(FIFT_PLAYER);
+      mockGetById.mockReturnValue(GAME);
+      gameManager.start(GAME_ID);
+    });
+
+    test('should automatic turn when next player is managed by the system', () => {
+      gameManager.leave(SECOND_PLAYER, GAME.id);
+      gameManager.leave(THIRD_PLAYER, GAME.id);
+      gameManager.leave(FOURTH_PLAYER, GAME.id);
+      const currentPlayer = getCurrentPlayer();
+      gameManager.selectAction(GAME_ID, currentPlayer, TurnAction.fishCatch);
+      jest.clearAllMocks();
+      gameManager.gainRessource(GAME_ID, currentPlayer, 3);
+      expect(mockSave).toHaveBeenCalledTimes(4);
     });
   });
 });

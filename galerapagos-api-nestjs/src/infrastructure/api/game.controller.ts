@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { GameManager } from '@/infrastructure/gameManager/game.manager';
+import { GameManager } from '@/domain/gameManager/game.manager';
 import { PlayerRepository } from '@/domain/repositories';
 import { Game, Player } from '@/domain/models';
 

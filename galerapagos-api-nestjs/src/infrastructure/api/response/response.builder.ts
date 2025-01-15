@@ -39,10 +39,28 @@ export const buildGameResponse =
       'self',
       `${paths.app}/games/${game.id}`,
     );
-    if (!game.isPlayer(player)) {
+    const isPlayer = gameState.players.some(({ id }) => id === player.id);
+    if (isPlayer) {
+      response.addLink('leaveGame', `${paths.app}/games/${game.id}/leave`);
+    } else {
       response.addLink('joinGame', `${paths.app}/games/${game.id}`);
-    } else if (gameState.canBeStarted) {
-      response.addLink('startGame', `${paths.app}/games/${game.id}/start`);
     }
+
+    if (!gameState.ressources && gameState.canBeStarted) {
+      response.addLink('startGame', `${paths.app}/games/${game.id}/start`);
+    } else if (gameState.ressources) {
+      const isCurrentPlayer = gameState.currentPlayer === player.id;
+
+      if (isCurrentPlayer && !gameState.currentPlayerTurn) {
+        response.addLink(
+          'selectAction',
+          `${paths.app}/games/${game.id}/selectAction`,
+        );
+      } else if (isCurrentPlayer && !gameState.currentPlayerTurn.gain) {
+        response.addLink('gain', `${paths.app}/games/${game.id}/gain`);
+      } else {
+      }
+    }
+
     return response;
   };

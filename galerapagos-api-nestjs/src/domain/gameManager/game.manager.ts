@@ -23,7 +23,8 @@ export class GameManager {
 
   join(player: Player, gameId: UUID): Game {
     const game: Game = this.getById(gameId);
-    return game.isJoinedBy(player);
+    game.isJoinedBy(player);
+    return this.gameRepository.save(game);
   }
 
   leave(player: Player, gameId: UUID): Game {
@@ -38,21 +39,41 @@ export class GameManager {
       this.gameRepository.deleteById(gameId);
       return null;
     }
-    return game;
+    return this.gameRepository.save(game);
   }
 
   start(gameId: UUID): Game {
     const game: Game = this.getById(gameId);
-    return game.start();
+    game.start();
+    return this.gameRepository.save(game);
   }
 
-  selectAction(gameId: UUID, player: Player, action: TurnAction) {
+  selectAction(gameId: UUID, player: Player, action: TurnAction): Game {
     const game: Game = this.getById(gameId);
-    return game.selectAction(player, action);
+    game.selectAction(player, action);
+    return this.gameRepository.save(game);
   }
 
-  gainRessource(gameId: UUID, player: Player, quantity: number) {
-    const game: Game = this.getById(gameId);
-    return game.gainRessource(player, quantity);
+  gainRessource(gameId: UUID, player: Player, quantity: number): Game {
+    let game: Game = this.getById(gameId);
+    game.gainRessource(player, quantity);
+    game = this.gameRepository.save(game);
+
+    const { players, currentPlayer } = game.getState();
+    let expectedPlayer = players.find(({ id }) => id === currentPlayer);
+
+    while (expectedPlayer.isManagedBySystem) {
+      this.#playAutomaticTurn(game, expectedPlayer);
+      game = this.gameRepository.save(game);
+      const { currentPlayer } = game.getState();
+      expectedPlayer = players.find(({ id }) => id === currentPlayer);
+    }
+
+    return game;
+  }
+
+  #playAutomaticTurn(game: Game, player: GamePlayer) {
+    game.selectAction(player, TurnAction.waterCollect);
+    game.gainRessource(player, 2);
   }
 }

@@ -1,26 +1,45 @@
+import halson from 'halson';
+import { UUID } from 'crypto';
 import {
   buildRegisterResponse,
   buildGameListResponse,
   buildGameResponse,
   buildConnectResponse,
 } from './response.builder';
-import halson from 'halson';
-import { PlayerDto } from './types';
-import Game from '@/domain/game/game';
-import Player from '@/domain/player/player';
 
-const isPlayerStub = jest.fn();
+import Game, { GameStateInfo } from '@/domain/game/game';
+import Player from '@/domain/player/player';
+import { GamePlayer, PlayerTurn, Ressource, TurnAction } from '@/domain/models';
+import { PlayerDto } from './types';
+
 let GAME_CAN_BE_STARTED = true;
+
+const FIRST_PLAYER = { id: 'playerId' } as unknown as GamePlayer;
+const SECOND_PLAYER = { id: 'playerId-2' } as unknown as GamePlayer;
+const THIRD_PLAYER = { id: 'playerId-3' } as unknown as GamePlayer;
+let gamePlayers: GamePlayer[] = [];
+let currentGamePlayer: UUID;
+let currentGamePlayerTurn: PlayerTurn;
+
+const RESSOURCES = {
+  fish: 0,
+  water: 0,
+  wood: 0,
+};
+let gameRessources: Ressource;
+
 const GAME = {
   id: 'gameId',
-  isPlayer: isPlayerStub,
-  getState: () => ({
-    currentPlayer: 'currentPlayer',
+  getState: (): GameStateInfo => ({
+    id: 'gameId' as unknown as UUID,
+    players: gamePlayers,
     canBeStarted: GAME_CAN_BE_STARTED,
+    isStarted: false,
+    currentPlayer: currentGamePlayer,
+    currentPlayerTurn: currentGamePlayerTurn,
+    ressources: gameRessources,
   }),
 } as unknown as Game;
-
-const PLAYER = { id: 'playerId' } as unknown as Player;
 
 describe('response builder', () => {
   describe('welcome page', () => {
@@ -75,16 +94,17 @@ describe('response builder', () => {
 
     test('should build game list response', () => {
       GAME_CAN_BE_STARTED = false;
-      isPlayerStub.mockReturnValue(false);
-      const response = buildGameListResponse(PLAYER, [GAME]);
+      gameRessources = undefined;
+      currentGamePlayer = 'playerId' as unknown as UUID;
+      const response = buildGameListResponse(FIRST_PLAYER, [GAME]);
 
       const expected = {
         content: [
           {
-            id: undefined,
-            players: undefined,
+            id: 'gameId',
+            players: [],
             ressources: undefined,
-            currentPlayer: 'currentPlayer',
+            currentPlayer: 'playerId',
             currentPlayerTurn: undefined,
             _links: {
               self: { href: '/galerapagos/games/gameId' },
@@ -101,95 +121,101 @@ describe('response builder', () => {
     });
   });
 
-  describe('when game has not started', () => {
-    describe('when player has not joined the game', () => {
-      let response;
+  describe('should build game response', () => {
+    test.each([
+      {
+        condition: 'player has not joined the game and game has not started',
+        gameCanBeStarted: false,
+        players: [SECOND_PLAYER, THIRD_PLAYER],
+        self: { href: '/galerapagos/games/gameId' },
+        join: { href: '/galerapagos/games/gameId' },
+        startGame: undefined,
+        leaveGame: undefined,
+      },
+      {
+        condition: "player has joined the game and game can't be started",
+        gameCanBeStarted: false,
+        players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
+        self: { href: '/galerapagos/games/gameId' },
+        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+      },
+      {
+        condition: 'player has joined the game and game can be started',
+        gameCanBeStarted: true,
+        players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
+        ressources: undefined,
+        self: { href: '/galerapagos/games/gameId' },
+        join: undefined,
+        startGame: { href: '/galerapagos/games/gameId/start' },
+        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+        selectAction: undefined,
+      },
+      {
+        condition: 'player has joined the game and game has started',
+        gameCanBeStarted: false,
+        players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
+        ressources: RESSOURCES,
+        self: { href: '/galerapagos/games/gameId' },
+        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+        selectAction: { href: '/galerapagos/games/gameId/selectAction' },
+      },
+      {
+        condition: "it is not the player's turn",
+        gameCanBeStarted: false,
+        players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
+        currentPlayer: SECOND_PLAYER.id,
+        ressources: RESSOURCES,
+        self: { href: '/galerapagos/games/gameId' },
+        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+      },
+      {
+        condition: "player's turn begins",
+        gameCanBeStarted: false,
+        players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
+        ressources: RESSOURCES,
+        self: { href: '/galerapagos/games/gameId' },
+        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+        selectAction: { href: '/galerapagos/games/gameId/selectAction' },
+      },
+      {
+        condition: 'player has selected his action',
+        gameCanBeStarted: false,
+        players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
+        ressources: RESSOURCES,
+        currentPlayerTurn: new PlayerTurn(TurnAction.fishCatch),
+        self: { href: '/galerapagos/games/gameId' },
+        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+        gain: { href: '/galerapagos/games/gameId/gain' },
+      },
+    ])(
+      'when $condition',
+      ({
+        gameCanBeStarted,
+        players,
+        currentPlayer,
+        ressources,
+        currentPlayerTurn,
+        self,
+        join,
+        startGame,
+        leaveGame,
+        selectAction,
+        gain,
+      }) => {
+        GAME_CAN_BE_STARTED = gameCanBeStarted;
+        gamePlayers = players;
+        currentGamePlayer = (currentPlayer || 'playerId') as unknown as UUID;
+        gameRessources = ressources;
+        currentGamePlayerTurn = currentPlayerTurn;
 
-      beforeAll(() => {
-        isPlayerStub.mockReturnValue(false);
-        response = buildGameResponse(PLAYER)(GAME);
-      });
-
-      test('should be able to reload the game', () => {
-        const expected = { href: '/galerapagos/games/gameId' };
-        expect(response.getLink('self')).toEqual(expected);
-      });
-
-      test('should be able to join the game', () => {
-        const expected = { href: '/galerapagos/games/gameId' };
-        expect(response.getLink('joinGame')).toEqual(expected);
-      });
-
-      test('should not be able to start the game', () => {
-        expect(response.getLink('startGame')).toBeUndefined();
-      });
-    });
-
-    describe("when player has joined the game and game can't be started", () => {
-      let response;
-
-      beforeAll(() => {
-        isPlayerStub.mockReturnValue(true);
-        response = buildGameResponse(PLAYER)(GAME);
-      });
-
-      test('should be able to reload the game', () => {
-        const expected = { href: '/galerapagos/games/gameId' };
-        expect(response.getLink('self')).toEqual(expected);
-      });
-
-      test('should not be able to join the game', () => {
-        expect(response.getLink('joinGame')).toBeUndefined();
-      });
-
-      test('should not be able to start the game', () => {
-        expect(response.getLink('startGame')).toBeUndefined();
-      });
-    });
-
-    describe('when player has joined the game and game can be started', () => {
-      let response;
-
-      beforeAll(() => {
-        GAME_CAN_BE_STARTED = true;
-        isPlayerStub.mockReturnValue(true);
-        response = buildGameResponse(PLAYER)(GAME);
-      });
-
-      test('should be able to reload the game', () => {
-        const expected = { href: '/galerapagos/games/gameId' };
-        expect(response.getLink('self')).toEqual(expected);
-      });
-
-      test('should not be able to join the game', () => {
-        expect(response.getLink('joinGame')).toBeUndefined();
-      });
-
-      test('should be able to start the game', () => {
-        const expected = { href: '/galerapagos/games/gameId/start' };
-        expect(response.getLink('startGame')).toEqual(expected);
-      });
-    });
-  });
-
-  describe('when game has started', () => {
-    describe('when player is current one', () => {
-      let response;
-
-      beforeAll(() => {
-        isPlayerStub.mockReturnValue(false);
-        response = buildGameResponse(PLAYER)(GAME);
-      });
-
-      test('should be able to reload the game', () => {
-        const expected = { href: '/galerapagos/games/gameId' };
-        expect(response.getLink('self')).toEqual(expected);
-      });
-
-      test('should be able to join the game', () => {
-        const expected = { href: '/galerapagos/games/gameId' };
-        expect(response.getLink('joinGame')).toEqual(expected);
-      });
-    });
+        const response = buildGameResponse(FIRST_PLAYER)(GAME);
+        expect(response.getLink('self')).toEqual(self);
+        expect(response.getLink('joinGame')).toEqual(join);
+        expect(response.getLink('startGame')).toEqual(startGame);
+        expect(response.getLink('leaveGame')).toEqual(leaveGame);
+        expect(response.getLink('selectAction')).toEqual(selectAction);
+        expect(response.getLink('gain')).toEqual(gain);
+      },
+    );
   });
 });

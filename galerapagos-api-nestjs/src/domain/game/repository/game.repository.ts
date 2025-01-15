@@ -10,4 +10,6 @@ export default interface GameRepository {
   getById(gameId: UUID): Game;
 
   deleteById(gameId: UUID): void;
+
+  save(game: Game): Game;
 }

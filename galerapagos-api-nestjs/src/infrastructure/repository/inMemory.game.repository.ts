@@ -30,4 +30,10 @@ export class InMemoryGameRepository implements GameRepository {
   deleteById(gameId: UUID): void {
     games = games.filter(({ id }) => id !== gameId);
   }
+
+  save(game: Game): Game {
+    const gameIndex = games.findIndex(({ id }) => id === game.id);
+    games[gameIndex] = game;
+    return game;
+  }
 }
