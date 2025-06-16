@@ -4,6 +4,7 @@ import { GameRepository } from '@/domain/repositories';
 
 const game1 = Game.create(new Player(randomUUID(), 'playerName1a'));
 game1.isJoinedBy(new Player(randomUUID(), 'playerName1b'));
+game1.isJoinedBy(new Player(randomUUID(), 'playerName1c'));
 const game2 = Game.create(new Player(randomUUID(), 'playerName2a'));
 game2.isJoinedBy(new Player(randomUUID(), 'playerName2b'));
 const game3 = Game.create(new Player(randomUUID(), 'playerName3a'));

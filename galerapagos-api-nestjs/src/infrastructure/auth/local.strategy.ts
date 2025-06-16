@@ -15,9 +15,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(request: Request): Player {
+    console.log('validate:');
+    console.log(request.user);
+    console.log(request.body);
     return (
       (request.user as Player) ||
-      this.playerRepository.register(request.body.userName)
+      (request.body.userName &&
+        this.playerRepository.register(request.body.userName))
     );
   }
 }

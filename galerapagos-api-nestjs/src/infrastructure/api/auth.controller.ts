@@ -2,9 +2,11 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  MessageEvent,
   Post,
   Req,
   Session,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -14,18 +16,28 @@ import { IsAuthenticatedGuard } from '../auth/guards/is-authenticated/is-authent
 import paths from './routing/paths';
 import { buildConnectResponse } from './response/response.builder';
 import Player from '@/domain/player/player';
+import { NotificationBroadCaster } from '../messaging/notification.broadcaster';
+import { Observable } from 'rxjs';
 
 @Controller()
 export class AuthController {
+  constructor(private notificationBroadCaster: NotificationBroadCaster) {}
+
   @Get()
-  connect(@Req() request: Request) {
+  main(@Req() request: Request) {
     return buildConnectResponse(request.user as Player);
   }
 
   @Post(paths.login)
   @UseGuards(LocalAuthGuard)
-  login(@Req() request: Request) {
-    return buildConnectResponse(request.user as Player);
+  logIn() {}
+
+  @Get(paths.connect)
+  @Sse(paths.connect)
+  @UseGuards(IsAuthenticatedGuard)
+  connect(@Req() request: Request): Observable<MessageEvent> {
+    const player: Player = request.user as Player;
+    return this.notificationBroadCaster.register(player).asObservable();
   }
 
   @Get(paths.session)

@@ -1,15 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AuthModule } from './auth.module';
-import { PlayerModule } from './player.module';
-import { GameModule } from './game.module';
 import { HasCandidatureReviewMiddlewareService } from './has-candidature-review-middleware.service';
+import { MiddlewareController } from './middleware.controller';
 
 @Module({
-  imports: [AuthModule, PlayerModule, GameModule],
-  controllers: [],
+  controllers: [MiddlewareController],
   providers: [],
 })
-export class AppModule implements NestModule {
+export class MiddleWareModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(HasCandidatureReviewMiddlewareService)

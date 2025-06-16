@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { GameController } from 'src/infrastructure/api/game.controller';
 import { GameManager } from '@/domain/gameManager/game.manager';
 import { gameManager, playerRepository } from './beans';
+import { NotificationModule } from './notification.module';
 
 @Module({
-  imports: [],
+  imports: [NotificationModule],
   controllers: [GameController],
   providers: [
     GameController,

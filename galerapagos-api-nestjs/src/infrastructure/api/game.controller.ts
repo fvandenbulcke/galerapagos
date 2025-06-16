@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Inject,
+  MessageEvent,
   Param,
   Post,
   Put,
@@ -19,6 +20,8 @@ import {
 } from './response/response.builder';
 import { UUID } from 'crypto';
 import { IsAuthenticatedGuard } from '../auth/guards/is-authenticated/is-authenticated.guard';
+import { NotificationBroadCaster } from '../messaging/notification.broadcaster';
+import { Observable } from 'rxjs';
 
 @Controller('/games')
 export class GameController {
@@ -26,6 +29,7 @@ export class GameController {
     @Inject('PlayerRepository')
     private readonly playerRepository: PlayerRepository,
     private readonly gameManager: GameManager,
+    private notificationBroadCaster: NotificationBroadCaster,
   ) {}
 
   @Get()
@@ -52,10 +56,11 @@ export class GameController {
 
   @Put('/:gameId')
   @UseGuards(IsAuthenticatedGuard)
-  join(@Req() request: Request, @Param() params: { gameId: UUID }): Game {
+  join(@Req() request: Request, @Param() params: { gameId: UUID }): void {
     const player: Player = request.user as Player;
     const game: Game = this.gameManager.join(player, params.gameId);
-    return buildGameResponse(player)(game);
+    this.notificationBroadCaster.broadCastGameState(game);
+    //return buildGameResponse(player)(game);
   }
 
   @Put('/:gameId/start')

@@ -9,6 +9,7 @@ export class LocalAuthGuard extends AuthGuard('custom') {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log('canActivate:');
     await super.canActivate(context);
     const request = context.switchToHttp().getRequest() as Request;
 

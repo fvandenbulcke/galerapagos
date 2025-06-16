@@ -7,6 +7,7 @@ import { PlayerSerializer } from '@/infrastructure/auth/player.serializer';
 import { AuthController } from '@/infrastructure/api/auth.controller';
 import { PlayerModule } from './player.module';
 import { playerRepository } from './beans';
+import { NotificationModule } from './notification.module';
 
 // https://aurelienbrabant.fr/blog/session-based-authentication-with-nestjs
 
@@ -15,6 +16,7 @@ import { playerRepository } from './beans';
     PassportModule.register({
       session: true,
     }),
+    NotificationModule,
   ],
   providers: [
     LocalStrategy,
