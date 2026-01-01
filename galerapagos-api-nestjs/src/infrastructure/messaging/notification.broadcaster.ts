@@ -2,19 +2,17 @@ import { MessageEvent } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { Subject } from 'rxjs';
 import { Game, Player } from '../../domain/models';
-import {
-  buildConnectResponse,
-  buildGameResponse,
-} from '../api/response/response.builder';
+import { buildGameResponse } from '../api/response/response.builder';
 
 export class NotificationBroadCaster {
   private playerSessions = new Map<UUID, Subject<MessageEvent>>();
 
-  register(player: Player): Subject<MessageEvent> {
+  register(player: Player, game: Game): Subject<MessageEvent> {
     const playerMessage = new Subject<MessageEvent>();
     this.playerSessions.set(player.id, playerMessage);
-    setTimeout(function () {
-      playerMessage.next({ data: buildConnectResponse(player) });
+
+    setTimeout(() => {
+      this.broadCastGameState(game);
     }, 1);
     return playerMessage;
   }

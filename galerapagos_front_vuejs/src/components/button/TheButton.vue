@@ -11,6 +11,11 @@
         type: String,
         required: true,
       },
+      disabled: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
 
     setup() {
@@ -24,7 +29,7 @@
 </script>
 
 <template>
-  <el-button type="primary" @click="$emit('click')">{{ label }}</el-button>
+  <el-button type="primary" :disabled="disabled" @click="$emit('click')">{{ label }}</el-button>
 </template>
 
 <style scoped></style>

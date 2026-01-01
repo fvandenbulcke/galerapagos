@@ -1,17 +1,7 @@
 <script lang="ts">
   import { defineComponent, type PropType } from 'vue';
   import RaftProgress from './RaftProgress.vue';
-
-  export enum GameWheater {
-    Sun,
-    Rain,
-  }
-
-  export type GameState = {
-    wheater: GameWheater;
-    water: number;
-    fish: number;
-  };
+  import { GameWheater, type GameState } from '../../../application/state/types';
 
   export default defineComponent({
     name: 'GamePlayState',
@@ -42,6 +32,8 @@
       <span>{{ state.water }}</span>
       <span class="game-play-state-resourses-type">Fish:</span>
       <span>{{ state.fish }}</span>
+      <span class="game-play-state-resourses-type">Wood:</span>
+      <span>{{ state.wood }}</span>
     </div>
     <div class="game-play-state-raft">
       <raft-progress />

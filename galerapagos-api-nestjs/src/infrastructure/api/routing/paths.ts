@@ -4,7 +4,7 @@ export default {
   login: '/login',
   session: '/session',
   logout: '/logout',
-  games: {
-    main: '/games',
+  game: {
+    main: '/game',
   },
 };

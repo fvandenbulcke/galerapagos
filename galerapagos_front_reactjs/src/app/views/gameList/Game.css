@@ -1,0 +1,41 @@
+.GameList {
+  border: solid blue 1px;
+  list-style: none;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-gap: 20px;
+}
+
+.GameListAction {
+  text-align: center;
+  button {
+    width: 30%;
+  }
+}
+
+.GameComponent {
+  border: solid lightgrey 1px;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 5px 5px 5px lightgrey;
+}
+
+.Game {
+}
+
+.GameAction {
+  text-align: center;
+
+  button {
+    width: 30%;
+  }
+}
+
+.Players {
+  list-style-type: square;
+}
+
+.Player {
+  width: fit-content;
+}

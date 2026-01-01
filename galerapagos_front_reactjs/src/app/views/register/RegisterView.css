@@ -1,0 +1,9 @@
+.RegisterView {
+  max-width: 50%;
+  margin: auto;
+
+  form {
+    display: grid;
+    gap: 10px;
+  }
+}

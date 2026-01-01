@@ -33,6 +33,7 @@ const GAME = {
   getState: (): GameStateInfo => ({
     id: 'gameId' as unknown as UUID,
     players: gamePlayers,
+    canBeJoined: true,
     canBeStarted: GAME_CAN_BE_STARTED,
     isStarted: false,
     currentPlayer: currentGamePlayer,
@@ -43,9 +44,8 @@ const GAME = {
 
 describe('response builder', () => {
   describe('welcome page', () => {
-    test('should build connect response when player is not connected', () => {
-      const player = null as unknown as Player;
-      const response = buildConnectResponse(player);
+    test('should build connect response with only login link when player is null', () => {
+      const response = buildConnectResponse(null);
       const expected = {
         _links: {
           login: { href: '/galerapagos/login' },
@@ -66,8 +66,8 @@ describe('response builder', () => {
         name: 'playerName',
         _links: {
           self: { href: '/galerapagos/players/self' },
-          listGames: { href: '/galerapagos/games' },
-          createGame: { href: '/galerapagos/games' },
+          listGames: { href: '/galerapagos/game' },
+          createGame: { href: '/galerapagos/game' },
         },
       };
       expect(response).toEqual(halson(expected));
@@ -85,8 +85,8 @@ describe('response builder', () => {
         name: 'playerName',
         _links: {
           self: { href: '/galerapagos/players/self' },
-          listGames: { href: '/galerapagos/games' },
-          createGame: { href: '/galerapagos/games' },
+          listGames: { href: '/galerapagos/game' },
+          createGame: { href: '/galerapagos/game' },
         },
       };
       expect(response).toEqual(halson(expected));
@@ -107,14 +107,14 @@ describe('response builder', () => {
             currentPlayer: 'playerId',
             currentPlayerTurn: undefined,
             _links: {
-              self: { href: '/galerapagos/games/gameId' },
-              joinGame: { href: '/galerapagos/games/gameId' },
+              self: { href: '/galerapagos/game/gameId' },
+              joinGame: { href: '/galerapagos/game/gameId/join' },
             },
           },
         ],
         _links: {
-          self: { href: '/galerapagos/games' },
-          createGame: { href: '/galerapagos/games' },
+          self: { href: '/galerapagos/game' },
+          createGame: { href: '/galerapagos/game' },
         },
       };
       expect(response).toEqual(halson(expected));
@@ -127,8 +127,8 @@ describe('response builder', () => {
         condition: 'player has not joined the game and game has not started',
         gameCanBeStarted: false,
         players: [SECOND_PLAYER, THIRD_PLAYER],
-        self: { href: '/galerapagos/games/gameId' },
-        join: { href: '/galerapagos/games/gameId' },
+        self: { href: '/galerapagos/game/gameId' },
+        join: { href: '/galerapagos/game/gameId/join' },
         startGame: undefined,
         leaveGame: undefined,
       },
@@ -136,18 +136,18 @@ describe('response builder', () => {
         condition: "player has joined the game and game can't be started",
         gameCanBeStarted: false,
         players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
-        self: { href: '/galerapagos/games/gameId' },
-        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+        self: { href: '/galerapagos/game/gameId' },
+        leaveGame: { href: '/galerapagos/game/gameId/leave' },
       },
       {
         condition: 'player has joined the game and game can be started',
         gameCanBeStarted: true,
         players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
         ressources: undefined,
-        self: { href: '/galerapagos/games/gameId' },
+        self: { href: '/galerapagos/game/gameId' },
         join: undefined,
-        startGame: { href: '/galerapagos/games/gameId/start' },
-        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+        startGame: { href: '/galerapagos/game/gameId/start' },
+        leaveGame: { href: '/galerapagos/game/gameId/leave' },
         selectAction: undefined,
       },
       {
@@ -155,9 +155,9 @@ describe('response builder', () => {
         gameCanBeStarted: false,
         players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
         ressources: RESSOURCES,
-        self: { href: '/galerapagos/games/gameId' },
-        leaveGame: { href: '/galerapagos/games/gameId/leave' },
-        selectAction: { href: '/galerapagos/games/gameId/selectAction' },
+        self: { href: '/galerapagos/game/gameId' },
+        leaveGame: { href: '/galerapagos/game/gameId/leave' },
+        selectAction: { href: '/galerapagos/game/gameId/selectAction' },
       },
       {
         condition: "it is not the player's turn",
@@ -165,17 +165,17 @@ describe('response builder', () => {
         players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
         currentPlayer: SECOND_PLAYER.id,
         ressources: RESSOURCES,
-        self: { href: '/galerapagos/games/gameId' },
-        leaveGame: { href: '/galerapagos/games/gameId/leave' },
+        self: { href: '/galerapagos/game/gameId' },
+        leaveGame: { href: '/galerapagos/game/gameId/leave' },
       },
       {
         condition: "player's turn begins",
         gameCanBeStarted: false,
         players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
         ressources: RESSOURCES,
-        self: { href: '/galerapagos/games/gameId' },
-        leaveGame: { href: '/galerapagos/games/gameId/leave' },
-        selectAction: { href: '/galerapagos/games/gameId/selectAction' },
+        self: { href: '/galerapagos/game/gameId' },
+        leaveGame: { href: '/galerapagos/game/gameId/leave' },
+        selectAction: { href: '/galerapagos/game/gameId/selectAction' },
       },
       {
         condition: 'player has selected his action',
@@ -183,9 +183,9 @@ describe('response builder', () => {
         players: [FIRST_PLAYER, SECOND_PLAYER, THIRD_PLAYER],
         ressources: RESSOURCES,
         currentPlayerTurn: new PlayerTurn(TurnAction.fishCatch),
-        self: { href: '/galerapagos/games/gameId' },
-        leaveGame: { href: '/galerapagos/games/gameId/leave' },
-        gain: { href: '/galerapagos/games/gameId/gain' },
+        self: { href: '/galerapagos/game/gameId' },
+        leaveGame: { href: '/galerapagos/game/gameId/leave' },
+        gain: { href: '/galerapagos/game/gameId/gain' },
       },
     ])(
       'when $condition',

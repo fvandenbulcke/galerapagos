@@ -71,6 +71,11 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/main.ts",
+      "<rootDir>/app/"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

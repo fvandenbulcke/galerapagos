@@ -1,22 +1,25 @@
 <script lang="ts">
-  import { defineComponent, type PropType } from 'vue';
+  import { defineComponent, onMounted } from 'vue';
   import GameItem from './GameItem.vue';
 
-  export type Game = {
-    id: string;
-    players: string[];
-  };
+  import useGameStateManager from '../../application/state/game.state.manager';
 
   export default defineComponent({
     name: 'GameList',
 
     components: { GameItem },
 
-    props: {
-      games: {
-        type: Array as PropType<Game[]>,
-        required: true,
-      },
+    setup() {
+      const { loadGames, gameList, joinGame } = useGameStateManager();
+
+      onMounted(() => {
+        loadGames();
+      });
+
+      return {
+        games: gameList,
+        joinGame,
+      };
     },
   });
 </script>
@@ -24,7 +27,12 @@
 <template>
   <div class="game-list-container">
     <div class="game-list">
-      <game-item v-for="game in games" :key="game.id" :id="game.id" :players="game.players" />
+      <game-item
+        v-for="game in games"
+        :key="game.id"
+        :game="game"
+        @join="() => joinGame(game.id)"
+      />
     </div>
   </div>
 </template>

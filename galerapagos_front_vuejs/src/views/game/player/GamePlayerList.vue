@@ -1,11 +1,7 @@
 <script lang="ts">
-  import { computed, defineComponent, type PropType } from 'vue';
-  import GamePlayerItem, { type GamePlayer } from './GamePlayerItem.vue';
-
-  export type Player = {
-    name: string;
-    numberOfCards: number;
-  };
+  import { defineComponent, type PropType } from 'vue';
+  import GamePlayerItem from './GamePlayerItem.vue';
+  import type { GamePlayer } from '../../../application/state/types';
 
   export default defineComponent({
     name: 'GamePlayerList',
@@ -14,34 +10,16 @@
 
     props: {
       players: {
-        type: Array as PropType<Player[]>,
+        type: Array as PropType<GamePlayer[]>,
         required: true,
       },
-      currentPlayer: {
-        type: String,
-        required: true,
-      },
-    },
-
-    setup(props) {
-      const gamePlayers = computed(() =>
-        props.players.map((player): GamePlayer => {
-          return {
-            name: player.name,
-            numberOfCards: player.numberOfCards,
-            isActive: player.name === props.currentPlayer,
-          };
-        }),
-      );
-
-      return { gamePlayers };
     },
   });
 </script>
 
 <template>
   <div class="game-players">
-    <game-player-item v-for="player in gamePlayers" :key="player.name" :player="player" />
+    <game-player-item v-for="player in players" :key="player.name" :player="player" />
   </div>
 </template>
 

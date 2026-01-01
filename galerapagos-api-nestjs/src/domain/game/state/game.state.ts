@@ -4,6 +4,7 @@ import Player from '@/domain/player/player';
 import PlayerTurn from '@/domain/game/player.turn/player.turn';
 
 export type StateInfo = {
+  canBeJoined: boolean;
   canBeStarted: boolean;
   isStarted: boolean;
   ressources?: Ressource;
@@ -40,15 +41,12 @@ export abstract class GameState {
     return true;
   }
 
-  start(): void {
-    throw new Error('Method not implemented.');
-  }
-
   abstract onActionSelect(player: Player, action: TurnAction): void;
   abstract onRessourceGain(player: Player, quantity: number): void;
 
   getState(): StateInfo {
     return {
+      canBeJoined: this.canBeJoined(),
       canBeStarted: this.canBeStarted(),
       isStarted: this.isStarted(),
       ressources: this.ressources,

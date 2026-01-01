@@ -2,6 +2,7 @@
   import { defineComponent, type PropType } from 'vue';
   import TheButton from '../../components/button/TheButton.vue';
   import TheLinkAction from '../../components/link/TheLinkAction.vue';
+  import type { GameListItem } from '../../application/state/types';
 
   export default defineComponent({
     name: 'GameItem',
@@ -11,12 +12,8 @@
     emits: ['join', 'displayPlayerDetails'],
 
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
-      players: {
-        type: Array as PropType<string[]>,
+      game: {
+        type: Object as PropType<GameListItem>,
         required: true,
       },
     },
@@ -25,16 +22,16 @@
 
 <template>
   <div class="game-item">
-    <div>Game {{ id }}</div>
+    <div>Game {{ game.id }}</div>
     <div class="game-players">
       <ul>
-        <li v-for="player in players" :key="player">
-          <the-link-action :label="player" @click="() => $emit('displayPlayerDetails')" />
+        <li v-for="player in game.players" :key="player.id">
+          <the-link-action :label="player.name" @click="() => $emit('displayPlayerDetails')" />
         </li>
       </ul>
     </div>
     <div class="game-item-action">
-      <the-button label="join game" @click="() => $emit('join')" />
+      <the-button label="join game" :disabled="!game.canBeJoined" @click="() => $emit('join')" />
     </div>
   </div>
 </template>

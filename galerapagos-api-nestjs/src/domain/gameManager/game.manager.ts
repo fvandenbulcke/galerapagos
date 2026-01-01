@@ -22,7 +22,11 @@ export class GameManager {
   }
 
   join(player: Player, gameId: UUID): Game {
-    const game: Game = this.getById(gameId);
+    let game: Game = this.gameRepository.getByPlayer(player);
+    if (game) {
+      throw new Error('Player is already in a game');
+    }
+    game = this.getById(gameId);
     game.isJoinedBy(player);
     return this.gameRepository.save(game);
   }

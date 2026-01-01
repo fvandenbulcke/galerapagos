@@ -3,7 +3,7 @@ import { WeatherManager } from './weather/weather.manager';
 import { GameState, StateInfo } from './state/game.state';
 import { WaintingForPlayersGameState } from './state/waitingForPlayers.game.state';
 import { PlayingGameState } from './state/playing.game.state';
-import { Ressource, TurnAction } from '../configuration';
+import { TurnAction } from '../configuration';
 import PlayerTurn from './player.turn/player.turn';
 import GamePlayer from './gamePlayer';
 import Player from '../player/player';

@@ -1,19 +1,16 @@
 <script lang="ts">
   import { defineComponent, type PropType } from 'vue';
-  import GamePlayerList, { type Player } from './player/GamePlayerList.vue';
+  import GamePlayerList from './player/GamePlayerList.vue';
   import GameWaitingForPlayerState from './state/GameWaitingForPlayerState.vue';
-  import GamePlayState, { GameWheater, type GameState } from './state/GamePlayState.vue';
-
-  export type Game = {
-    id: string;
-    players: Player[];
-    currentPlayer: string;
-  };
+  import GameReadyToStartState from './state/GameReadyToStartState.vue';
+  import GamePlayState from './state/GamePlayState.vue';
+  import useGameStateManager from '../../application/state/game.state.manager';
+  import type { Game } from '../../application/state/types';
 
   export default defineComponent({
     name: 'GamePlay',
 
-    components: { GamePlayerList, GameWaitingForPlayerState, GamePlayState },
+    components: { GamePlayerList, GameWaitingForPlayerState, GameReadyToStartState, GamePlayState },
 
     props: {
       game: {
@@ -23,12 +20,8 @@
     },
 
     setup() {
-      const gameState: GameState = {
-        wheater: GameWheater.Rain,
-        water: 10,
-        fish: 4,
-      };
-      return { gameState };
+      const {} = useGameStateManager();
+      return {};
     },
   });
 </script>
@@ -36,12 +29,13 @@
 <template>
   <div class="game-play">
     <div class="game-players">
-      <game-player-list :players="game.players" :currentPlayer="game.currentPlayer" />
+      <game-player-list :players="game.players" />
     </div>
     <div class="game-play-body">
       <div class="game-play-body-state">
-        <!-- <game-waiting-for-player-state /> -->
-        <game-play-state :state="gameState" />
+        <game-play-state v-if="game.state" :state="game.state" />
+        <game-ready-to-start-state v-else-if="game.canBeStarted" />
+        <game-waiting-for-player-state v-else />
       </div>
     </div>
   </div>

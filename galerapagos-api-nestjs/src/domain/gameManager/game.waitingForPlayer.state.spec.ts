@@ -13,6 +13,7 @@ import { GameManager } from './game.manager';
 jest.mock('@/domain/configuration/index', () => ({
   startingRessourcesByPlayersNumber: {
     2: { fish: 5, water: 6, wood: 7 },
+    3: { fish: 6, water: 7, wood: 8 },
   },
 }));
 
@@ -24,6 +25,7 @@ const gameRepositoryStub: GameRepository = {
   getById: (id: UUID) => mockGetById(id),
   deleteById: (id: UUID) => mockDeleteById(id),
   save: (game: Game) => game,
+  getByPlayer: jest.fn(),
 };
 
 const gameManager = new GameManager(gameRepositoryStub);
@@ -46,6 +48,7 @@ describe('Game - when not yet started', () => {
     const gameState = GAME.getState();
     const expected: GameStateInfo = {
       id: GAME.id,
+      canBeJoined: true,
       canBeStarted: false,
       isStarted: false,
       players: [gamePlayer],
@@ -62,6 +65,7 @@ describe('Game - when not yet started', () => {
       const gameState = updatedGame.getState();
       const expected: GameStateInfo = {
         id: GAME.id,
+        canBeJoined: true,
         canBeStarted: true,
         isStarted: false,
         players: [gamePlayer, new GamePlayer(anotherPlayer)],
@@ -105,9 +109,12 @@ describe('Game - when not yet started', () => {
 
   describe('when maximum of players is reached', () => {
     let anotherPlayer: Player;
+    let anotherPlayer2: Player;
     beforeEach(() => {
       anotherPlayer = new Player(randomUUID(), `unit-test-2`);
       gameManager.join(anotherPlayer, GAME_ID);
+      anotherPlayer2 = new Player(randomUUID(), `unit-test-3`);
+      gameManager.join(anotherPlayer2, GAME_ID);
     });
 
     test('should be able to leave the game', () => {
@@ -117,9 +124,10 @@ describe('Game - when not yet started', () => {
       const gameState = updatedGame.getState();
       const expected: GameStateInfo = {
         id: GAME.id,
-        canBeStarted: false,
+        canBeJoined: true,
+        canBeStarted: true,
         isStarted: false,
-        players: [gamePlayer],
+        players: [gamePlayer, new GamePlayer(anotherPlayer2)],
         ressources: undefined,
       };
       expect(gameState).toEqual(expected);
@@ -134,7 +142,7 @@ describe('Game - when not yet started', () => {
 
     test('should be able to start the game', () => {
       const game = gameManager.start(GAME_ID);
-      const expected: Ressource = { fish: 5, water: 6, wood: 7 };
+      const expected: Ressource = { fish: 6, water: 7, wood: 8 };
       expect(game.state.ressources).toEqual(expected);
     });
   });

@@ -12,4 +12,6 @@ export default interface GameRepository {
   deleteById(gameId: UUID): void;
 
   save(game: Game): Game;
+
+  getByPlayer(player: Player): Game | undefined;
 }

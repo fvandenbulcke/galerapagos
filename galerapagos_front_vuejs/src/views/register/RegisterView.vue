@@ -8,7 +8,10 @@
     buildFormValidation,
     FieldType,
     type FormValidation,
-  } from '../../infrastructure/validation.composable';
+  } from '../../application/infrastructure/validation.composable';
+  import useGameStateManager from '../../application/state/game.state.manager';
+
+  const { login } = useGameStateManager();
 
   export default defineComponent({
     name: 'RegisterView',
@@ -29,6 +32,7 @@
       const onLogin = handleSubmit(
         (values) => {
           console.log(values);
+          login(values.userLogin!);
         },
         (ctx) => {
           console.log('values.userLogin');

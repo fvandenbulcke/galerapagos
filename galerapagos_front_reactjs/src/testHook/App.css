@@ -1,0 +1,27 @@
+.App {
+  display: inline-grid;
+  grid-template-columns: 400px 400px 400px;
+  width: 100%;
+}
+
+.Component {
+  width: 100%;
+  height: 300px;
+  display: flow;
+}
+
+.ComponentTitle {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  height: 30px;
+}
+
+.ComponentOne {
+  border: solid red 1px;
+}
+
+.ComponentTwo {
+  border: solid blue 1px;
+}

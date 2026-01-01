@@ -2,11 +2,12 @@ import {
   Controller,
   Get,
   Inject,
-  MessageEvent,
   Param,
   Post,
   Put,
   Req,
+  Sse,
+  MessageEvent,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -23,7 +24,7 @@ import { IsAuthenticatedGuard } from '../auth/guards/is-authenticated/is-authent
 import { NotificationBroadCaster } from '../messaging/notification.broadcaster';
 import { Observable } from 'rxjs';
 
-@Controller('/games')
+@Controller('/game')
 export class GameController {
   constructor(
     @Inject('PlayerRepository')
@@ -54,20 +55,26 @@ export class GameController {
     return buildGameResponse(player)(game);
   }
 
-  @Put('/:gameId')
+  @Get('/:gameId/join')
+  @Sse('/:gameId/join')
   @UseGuards(IsAuthenticatedGuard)
-  join(@Req() request: Request, @Param() params: { gameId: UUID }): void {
+  @UseGuards(IsAuthenticatedGuard)
+  join(
+    @Req() request: Request,
+    @Param() params: { gameId: UUID },
+  ): Observable<MessageEvent> {
     const player: Player = request.user as Player;
     const game: Game = this.gameManager.join(player, params.gameId);
-    this.notificationBroadCaster.broadCastGameState(game);
-    //return buildGameResponse(player)(game);
+    //this.notificationBroadCaster.broadCastGameState(game);
+    return this.notificationBroadCaster.register(player, game).asObservable();
   }
 
   @Put('/:gameId/start')
   @UseGuards(IsAuthenticatedGuard)
-  start(@Req() request: Request, @Param() params: { gameId: UUID }): Game {
+  start(@Req() request: Request, @Param() params: { gameId: UUID }): void {
     const player: Player = request.user as Player;
     const game: Game = this.gameManager.start(params.gameId);
-    return buildGameResponse(player)(game);
+    this.notificationBroadCaster.broadCastGameState(game);
+    //return buildGameResponse(player)(game);
   }
 }

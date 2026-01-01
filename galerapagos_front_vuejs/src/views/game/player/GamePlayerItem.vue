@@ -2,12 +2,7 @@
   import { defineComponent, type PropType } from 'vue';
   import TheAvatar from '../../../components/avatar/TheAvatar.vue';
   import GamePlayerCards from './GamePlayerCards.vue';
-
-  export type GamePlayer = {
-    name: string;
-    isActive: boolean;
-    numberOfCards: number;
-  };
+  import type { GamePlayer } from '../../../application/state/types';
 
   export default defineComponent({
     name: 'GamePlayerItem',

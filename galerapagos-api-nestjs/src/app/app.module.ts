@@ -1,18 +1,11 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthModule } from './auth.module';
 import { PlayerModule } from './player.module';
 import { GameModule } from './game.module';
-import { HasCandidatureReviewMiddlewareService } from './has-candidature-review-middleware.service';
 
 @Module({
   imports: [AuthModule, PlayerModule, GameModule],
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(HasCandidatureReviewMiddlewareService)
-      .forRoutes('candidature/reviews');
-  }
-}
+export class AppModule {}

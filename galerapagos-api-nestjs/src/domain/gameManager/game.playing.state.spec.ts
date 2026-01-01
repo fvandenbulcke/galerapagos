@@ -29,6 +29,7 @@ const gameRepositoryStub: GameRepository = {
   getById: (id: UUID) => mockGetById(id),
   deleteById: (id: UUID) => mockDeleteById(id),
   save: mockSave,
+  getByPlayer: jest.fn(),
 };
 
 const gameManager = new GameManager(gameRepositoryStub);
@@ -73,6 +74,7 @@ describe('Game - when is started', () => {
 
     const expected: GameStateInfo = {
       id: GAME.id,
+      canBeJoined: false,
       canBeStarted: false,
       isStarted: true,
       players: [firstPlayer, new GamePlayer(SECOND_PLAYER)],
@@ -104,6 +106,7 @@ describe('Game - when is started', () => {
 
       const expected: GameStateInfo = {
         id: GAME.id,
+        canBeJoined: false,
         canBeStarted: false,
         isStarted: true,
         players: [new GamePlayer(FIRST_PLAYER), new GamePlayer(SECOND_PLAYER)],
@@ -156,6 +159,7 @@ describe('Game - when is started', () => {
 
       const expected: GameStateInfo = {
         id: GAME.id,
+        canBeJoined: false,
         canBeStarted: false,
         isStarted: true,
         players: [new GamePlayer(FIRST_PLAYER), new GamePlayer(SECOND_PLAYER)],

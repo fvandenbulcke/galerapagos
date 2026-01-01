@@ -3,6 +3,7 @@ import {
   Get,
   InternalServerErrorException,
   MessageEvent,
+  Param,
   Post,
   Req,
   Session,
@@ -18,6 +19,7 @@ import { buildConnectResponse } from './response/response.builder';
 import Player from '@/domain/player/player';
 import { NotificationBroadCaster } from '../messaging/notification.broadcaster';
 import { Observable } from 'rxjs';
+import { UUID } from 'crypto';
 
 @Controller()
 export class AuthController {
@@ -30,15 +32,20 @@ export class AuthController {
 
   @Post(paths.login)
   @UseGuards(LocalAuthGuard)
-  logIn() {}
+  logIn(@Req() request: Request) {
+    return buildConnectResponse(request.user as Player);
+  }
 
   @Get(paths.connect)
   @Sse(paths.connect)
   @UseGuards(IsAuthenticatedGuard)
   connect(@Req() request: Request): Observable<MessageEvent> {
     const player: Player = request.user as Player;
-    return this.notificationBroadCaster.register(player).asObservable();
+    return this.notificationBroadCaster.register(player, null).asObservable();
   }
+
+  // eslint-disable-next-line prettier/prettier
+// --------------------------------------------------------------------------------------------------
 
   @Get(paths.session)
   @UseGuards(IsAuthenticatedGuard)

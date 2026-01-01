@@ -6,13 +6,11 @@ type Link = {
 };
 
 describe('test halson library', () => {
-  test.only('should customize the links with another info', () => {
+  test('should customize the links with another info', () => {
     const player = {
       id: 'playerId',
       name: 'playerName',
     };
-
-    console.log(halson);
 
     const response = halson(player).addLink('login', {
       href: 'myPath/login',
@@ -28,7 +26,7 @@ describe('test halson library', () => {
     expect(response).toEqual(expected);
   });
 
-  test('should test documentaton example', () => {
+  test('should test documentation example', () => {
     const embed = halson({
       title: 'joyent / node',
       description: 'evented I/O for v8 javascript',
@@ -47,10 +45,14 @@ describe('test halson library', () => {
       .addLink('self', '/doe')
       .addEmbed('starred', embed) as any;
 
-    console.log(resource.title);
-    console.log(resource.emails[0]);
-    console.log(resource.getLink('self'));
+    expect(resource.title).toEqual('john doe');
+    expect(resource.username).toEqual('doe');
+    expect(resource.emails[0]).toEqual('john.doe@example.com');
+    expect(resource.getLink('self')).toEqual({
+      href: '/doe',
+    });
+    /* console.log(Object.keys(resource));
     console.log(resource.getEmbed('starred'));
-    console.log(JSON.stringify(resource));
+    console.log(JSON.stringify(resource)); */
   });
 });

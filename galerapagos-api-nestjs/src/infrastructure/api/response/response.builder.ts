@@ -21,14 +21,14 @@ export const buildConnectResponse = (player: Player): any => {
 export const buildRegisterResponse = (player: PlayerDto): any => {
   return halson(player)
     .addLink('self', `${paths.app}/players/self`)
-    .addLink('listGames', `${paths.app}/games`)
-    .addLink('createGame', `${paths.app}/games`);
+    .addLink('listGames', `${paths.app}/game`)
+    .addLink('createGame', `${paths.app}/game`);
 };
 
 export const buildGameListResponse = (player: Player, games: Game[]): any => {
   return halson({ content: games.map(buildGameResponse(player)) })
-    .addLink('self', `${paths.app}/games`)
-    .addLink('createGame', `${paths.app}/games`);
+    .addLink('self', `${paths.app}/game`)
+    .addLink('createGame', `${paths.app}/game`);
 };
 
 export const buildGameResponse =
@@ -37,27 +37,27 @@ export const buildGameResponse =
     const gameState = game.getState();
     const response = halson(GameStateDto.from(gameState)).addLink(
       'self',
-      `${paths.app}/games/${game.id}`,
+      `${paths.app}/game/${game.id}`,
     );
     const isPlayer = gameState.players.some(({ id }) => id === player.id);
     if (isPlayer) {
-      response.addLink('leaveGame', `${paths.app}/games/${game.id}/leave`);
-    } else {
-      response.addLink('joinGame', `${paths.app}/games/${game.id}`);
+      response.addLink('leaveGame', `${paths.app}/game/${game.id}/leave`);
+    } else if (gameState.canBeJoined) {
+      response.addLink('joinGame', `${paths.app}/game/${game.id}/join`);
     }
 
     if (!gameState.ressources && gameState.canBeStarted) {
-      response.addLink('startGame', `${paths.app}/games/${game.id}/start`);
+      response.addLink('startGame', `${paths.app}/game/${game.id}/start`);
     } else if (gameState.ressources) {
       const isCurrentPlayer = gameState.currentPlayer === player.id;
 
       if (isCurrentPlayer && !gameState.currentPlayerTurn) {
         response.addLink(
           'selectAction',
-          `${paths.app}/games/${game.id}/selectAction`,
+          `${paths.app}/game/${game.id}/selectAction`,
         );
       } else if (isCurrentPlayer && !gameState.currentPlayerTurn.gain) {
-        response.addLink('gain', `${paths.app}/games/${game.id}/gain`);
+        response.addLink('gain', `${paths.app}/game/${game.id}/gain`);
       } else {
       }
     }

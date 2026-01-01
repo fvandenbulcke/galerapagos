@@ -9,8 +9,10 @@ const game2 = Game.create(new Player(randomUUID(), 'playerName2a'));
 game2.isJoinedBy(new Player(randomUUID(), 'playerName2b'));
 const game3 = Game.create(new Player(randomUUID(), 'playerName3a'));
 game3.isJoinedBy(new Player(randomUUID(), 'playerName3b'));
+const game4 = Game.create(new Player(randomUUID(), 'playerName4a'));
+game4.isJoinedBy(new Player(randomUUID(), 'playerName4b'));
 
-let games = [game1, game2, game3, game1, game2, game3] as Game[];
+let games = [game1, game2, game3, game4] as Game[];
 
 export class InMemoryGameRepository implements GameRepository {
   getAll(): Game[] {
@@ -36,5 +38,9 @@ export class InMemoryGameRepository implements GameRepository {
     const gameIndex = games.findIndex(({ id }) => id === game.id);
     games[gameIndex] = game;
     return game;
+  }
+
+  getByPlayer(player: Player): Game | undefined {
+    return games.find((game) => game.isPlayer(player));
   }
 }
