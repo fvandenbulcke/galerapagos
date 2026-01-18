@@ -9,9 +9,7 @@
     FieldType,
     type FormValidation,
   } from '../../application/infrastructure/validation.composable';
-  import useGameStateManager from '../../application/state/game.state.manager';
-
-  const { login } = useGameStateManager();
+  import useGameStateManager from '@/application/state/game.state.manager';
 
   export default defineComponent({
     name: 'RegisterView',
@@ -19,6 +17,8 @@
     components: { TheButton, TheTextField },
 
     setup() {
+      const { login } = useGameStateManager();
+
       const formRules = {
         userLogin: {
           type: FieldType.STRING,

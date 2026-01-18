@@ -1,7 +1,7 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import TheButton from '../../../components/button/TheButton.vue';
-  import useGameStateManager from '../../../application/state/game.state.manager';
+  import useGameStateManager from '@/application/state/game.state.manager';
 
   export default defineComponent({
     name: 'GameReadyToStartState',

@@ -1,8 +1,7 @@
 <script lang="ts">
   import { defineComponent, onMounted } from 'vue';
   import GameItem from './GameItem.vue';
-
-  import useGameStateManager from '../../application/state/game.state.manager';
+  import useGameStateManager from '@/application/state/game.state.manager';
 
   export default defineComponent({
     name: 'GameList',

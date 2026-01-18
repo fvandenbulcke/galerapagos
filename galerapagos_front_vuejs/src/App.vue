@@ -1,10 +1,10 @@
 <script setup lang="ts">
   import { onMounted } from 'vue';
-  import useGameStateManager from './application/state/game.state.manager';
 
   import RegisterView from './views/register/RegisterView.vue';
   import GameList from './views/gameList/GameList.vue';
   import GamePlay from './views/game/GamePlay.vue';
+  import useGameStateManager from './application/state/game.state.manager';
 
   const { player, game, login } = useGameStateManager();
 

@@ -4,8 +4,8 @@
   import GameWaitingForPlayerState from './state/GameWaitingForPlayerState.vue';
   import GameReadyToStartState from './state/GameReadyToStartState.vue';
   import GamePlayState from './state/GamePlayState.vue';
-  import useGameStateManager from '../../application/state/game.state.manager';
   import type { Game } from '../../application/state/types';
+  import useGameStateManager from '@/application/state/game.state.manager';
 
   export default defineComponent({
     name: 'GamePlay',
